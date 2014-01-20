@@ -132,7 +132,9 @@ public class RobotTemplate extends SimpleRobot {
         try
         {
             if(aF.getPowerCycled() || aB.getPowerCycled() || bF.getPowerCycled() || bB.getPowerCycled())
+            {
                 return true;
+            }
         }
         catch(CANTimeoutException ex)
         {
@@ -144,8 +146,13 @@ public class RobotTemplate extends SimpleRobot {
     
     double filterJoystickInput(double joystickValue)
     {
-        if(joystickValue > 0.1)
+        if(Math.abs(joystickValue) > 0.1)
+        {
             return joystickValue;
-        else return 0;
+        }
+        else 
+        {
+            return 0;
+        }
     }
 }
