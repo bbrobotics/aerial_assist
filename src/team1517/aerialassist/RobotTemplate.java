@@ -61,7 +61,7 @@ public class RobotTemplate extends SimpleRobot {
         while(isOperatorControl() && isEnabled())
         {
             exceptionFree = mDrive.drive(xyStick.getX(), xyStick.getY(), steerStick.getTwist());
-            if(!exceptionFree)
+            if(!exceptionFree || getCANJaguarsPowerCycled())
                 initCANJaguars();
             
         }
@@ -125,5 +125,20 @@ public class RobotTemplate extends SimpleRobot {
             return false;
         }
         return true;
+    }
+    
+    private boolean getCANJaguarsPowerCycled()
+    {
+        try
+        {
+            if(aF.getPowerCycled() || aB.getPowerCycled() || bF.getPowerCycled() || bB.getPowerCycled())
+                return true;
+        }
+        catch(CANTimeoutException ex)
+        {
+            ex.printStackTrace();
+            return true;
+        }
+        return false;
     }
 }
