@@ -60,7 +60,7 @@ public class RobotTemplate extends SimpleRobot {
         
         while(isOperatorControl() && isEnabled())
         {
-            exceptionFree = mDrive.drive(xyStick.getX(), xyStick.getY(), steerStick.getTwist());
+            exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), steerStick.getTwist());
             if(!exceptionFree || getCANJaguarsPowerCycled())
                 initCANJaguars();
             
@@ -140,5 +140,12 @@ public class RobotTemplate extends SimpleRobot {
             return true;
         }
         return false;
+    }
+    
+    double filterJoystickInput(double joystickValue)
+    {
+        if(joystickValue > 0.1)
+            return joystickValue;
+        else return 0;
     }
 }
