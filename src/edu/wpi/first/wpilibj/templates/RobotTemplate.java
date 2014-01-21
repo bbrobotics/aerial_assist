@@ -10,6 +10,7 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
@@ -28,6 +29,7 @@ public class RobotTemplate extends SimpleRobot {
     CANJaguar aF, aB, bF, bB, winchMotor;
     Victor rotRod1, rotRod2, angle;
     Joystick xyStick, steerStick, auxStick;
+    DriverStationLCD lcd;
     MecanumDrive mDrive;
     
     public RobotTemplate()
@@ -39,6 +41,8 @@ public class RobotTemplate extends SimpleRobot {
         xyStick = new Joystick(1);
         steerStick = new Joystick(2);
         auxStick = new Joystick(3);
+        
+        lcd = DriverStationLCD.getInstance();
         
         initCANJaguars();
         
@@ -64,6 +68,8 @@ public class RobotTemplate extends SimpleRobot {
             if(!exceptionFree || getCANJaguarsPowerCycled())
                 initCANJaguars();
             
+            lcd.println(DriverStationLCD.Line.kUser1, 1, " " + steerStick.getTwist());
+            lcd.updateLCD();
         }
     }
     
@@ -152,7 +158,14 @@ public class RobotTemplate extends SimpleRobot {
         }
         else 
         {
+            if(steerStick.getTwist() != 0)
+            {
+                return 0.0000000000001;
+            }
+            else
+            {
             return 0;
+            }
         }
     }
 }

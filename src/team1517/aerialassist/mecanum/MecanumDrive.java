@@ -43,11 +43,23 @@ public class MecanumDrive {
             A = Math.sqrt(2) * Math.sin(theta - 3 * Math.PI / 4);
             B = Math.sqrt(2) * Math.cos(theta + Math.PI / 4);
             
-            if(A > 1) A = 1;
-            else if(A < -1) A = -1;
+            if(A > 1)
+            {
+                A = 1;
+            }
+            else if(A < -1) 
+            {
+                A = -1;
+            }
             
-            if(B > 1) B = 1;
-            else if(B < -1) B = -1;
+            if(B > 1) 
+            {
+                B = 1;
+            }
+            else if(B < -1) 
+            {
+                B = -1;
+            }
             
             A = A * magnitude;
             B = B * magnitude;
