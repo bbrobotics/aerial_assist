@@ -14,6 +14,14 @@ import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.camera.AxisCamera;
+import edu.wpi.first.wpilibj.camera.AxisCameraException;
+import edu.wpi.first.wpilibj.image.BinaryImage;
+import edu.wpi.first.wpilibj.image.ColorImage;
+import edu.wpi.first.wpilibj.image.CriteriaCollection;
+import edu.wpi.first.wpilibj.image.NIVision;
+import edu.wpi.first.wpilibj.image.NIVisionException;
+import edu.wpi.first.wpilibj.image.ParticleAnalysisReport;
 
 import team1517.aerialassist.mecanum.MecanumDrive;
 
@@ -26,6 +34,10 @@ import team1517.aerialassist.mecanum.MecanumDrive;
  */
 public class RobotTemplate extends SimpleRobot {
     
+    final int AREA_MINIMUM = 100;
+    
+    AxisCamera camera;
+    CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB, winchMotor;
     Victor rotRod1, rotRod2, angle;
     Joystick xyStick, steerStick, auxStick;
@@ -34,6 +46,10 @@ public class RobotTemplate extends SimpleRobot {
     
     public RobotTemplate()
     {
+        camera = AxisCamera.getInstance();
+        cc = new CriteriaCollection();      // create the criteria for the particle filter
+        cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
+        
         rotRod1 = new Victor(1);
         rotRod2 = new Victor(2);
         angle = new Victor(3);
@@ -64,7 +80,7 @@ public class RobotTemplate extends SimpleRobot {
         
         while(isOperatorControl() && isEnabled())
         {
-            exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), steerStick.getTwist());
+            exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
             if(!exceptionFree || getCANJaguarsPowerCycled())
                 initCANJaguars();
             
@@ -76,15 +92,52 @@ public class RobotTemplate extends SimpleRobot {
     /**
      * This function is called once each time the robot enters test mode.
      */
-    public void test() {
-    
+    public void test() 
+    {
+        while(isTest() && isEnabled())
+        {
+            if(auxStick.getRawButton(1))
+            {
+                lcd.println(DriverStationLCD.Line.kUser1, 1, " " + getHotGoal());
+                lcd.updateLCD();
+            }
+        }
     }
-    
     
     private boolean getHotGoal()
     {
-        //todo stub.
-        return true;
+        try {
+            ColorImage image = camera.getImage();
+            BinaryImage thresholdImage = image.thresholdHSV(80, 140, 165, 255, 200, 255);
+            image.free();
+            BinaryImage hulledImage = thresholdImage.convexHull(false);
+            thresholdImage.free();
+            
+            
+            if(hulledImage.getNumberParticles() > 0)
+            {
+                lcd.println(DriverStationLCD.Line.kUser2,1, "" + hulledImage.getNumberParticles());
+                lcd.updateLCD();
+                ParticleAnalysisReport report;
+                for(int i = 0; i < hulledImage.getNumberParticles(); i++)
+                {
+                   report = hulledImage.getParticleAnalysisReport(i);
+                   if((report.boundingRectHeight / report.boundingRectWidth) < 1)
+                   {
+                       return true;
+                   }
+                }
+                report = null;
+            }
+            hulledImage.free();
+        } catch (AxisCameraException ex) {
+            ex.printStackTrace();
+            return false;
+        } catch (NIVisionException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return false;
     }
     
     /**
@@ -154,11 +207,11 @@ public class RobotTemplate extends SimpleRobot {
     {
         if(Math.abs(joystickValue) > 0.1)
         {
-            return joystickValue;
+            return (joystickValue * joystickValue * joystickValue);
         }
         else 
         {
-            if(steerStick.getTwist() != 0)
+            if(xyStick.getTwist() != 0)
             {
                 return 0.0000000000001;
             }
