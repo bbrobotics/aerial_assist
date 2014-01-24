@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.camera.AxisCamera;
 import edu.wpi.first.wpilibj.camera.AxisCameraException;
@@ -69,7 +70,26 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-        
+        Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
+        boolean isHotGoalStarting = getHotGoal();
+        try
+        {
+            while(aF.getPosition() < 0.7)
+            {
+                mDrive.drive(0, 1, 0);
+            }
+            mDrive.drive(0, 0, 0);   
+        }
+        catch(CANTimeoutException ex)
+        {
+            ex.printStackTrace();
+            initCANJaguars();
+        }
+        if(!isHotGoalStarting)
+        {
+            Timer.delay(4);
+        }
+        //Shoot.        
     }
 
     /**
