@@ -80,11 +80,36 @@ public class RobotTemplate extends SimpleRobot {
         
         while(isOperatorControl() && isEnabled())
         {
+            /*
+             * Controls the drive base and also handles exceptions.
+             */
             exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
             if(!exceptionFree || getCANJaguarsPowerCycled())
                 initCANJaguars();
             
-            lcd.println(DriverStationLCD.Line.kUser1, 1, " " + steerStick.getTwist());
+            /*
+             * Controls the rotation of the rotrods. 
+             */
+            rotRod1.set(auxStick.getY());
+            rotRod2.set(-1 * auxStick.getY());
+            
+            /*
+             * Controls the angle of the rotrods.
+             */
+            if(auxStick.getRawButton(3))
+            {
+                angle.set(0.7);
+            }
+            else if(auxStick.getRawButton(5))
+            {
+                angle.set(-0.7);
+            }
+            else
+            {
+                angle.set(0);
+            }
+            
+            
             lcd.updateLCD();
         }
     }
