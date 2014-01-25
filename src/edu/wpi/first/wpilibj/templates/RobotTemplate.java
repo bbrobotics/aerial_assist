@@ -40,7 +40,7 @@ public class RobotTemplate extends SimpleRobot {
     AxisCamera camera;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB, winchMotor;
-    Victor rotRod1, rotRod2, angle;
+    Victor rotRod1, rotRod2, angle1, angle2;
     Joystick xyStick, steerStick, auxStick;
     DriverStationLCD lcd;
     MecanumDrive mDrive;
@@ -53,7 +53,8 @@ public class RobotTemplate extends SimpleRobot {
         
         rotRod1 = new Victor(1);
         rotRod2 = new Victor(2);
-        angle = new Victor(3);
+        angle1 = new Victor(3);
+        angle2 = new Victor(4);
         
         xyStick = new Joystick(1);
         steerStick = new Joystick(2);
@@ -118,15 +119,18 @@ public class RobotTemplate extends SimpleRobot {
              */
             if(auxStick.getRawButton(3))
             {
-                angle.set(0.7);
+                angle1.set(0.7);
+                angle2.set(-0.7);
             }
             else if(auxStick.getRawButton(5))
             {
-                angle.set(-0.7);
+                angle1.set(-0.7);
+                angle2.set(0.7);
             }
             else
             {
-                angle.set(0);
+                angle1.set(0);
+                angle2.set(0);
             }
             
             
