@@ -217,6 +217,12 @@ public class RobotTemplate extends SimpleRobot {
             bB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             //winchMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             
+            aF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+            bF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+            aB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+            bB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+            //winchMotor.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+            
             aF.configEncoderCodesPerRev(100);
             bF.configEncoderCodesPerRev(100);
             aB.configEncoderCodesPerRev(100);
