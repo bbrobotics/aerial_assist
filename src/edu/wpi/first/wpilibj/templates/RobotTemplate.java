@@ -40,7 +40,7 @@ public class RobotTemplate extends SimpleRobot {
     AxisCamera camera;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB, winchMotor;
-    Victor rotRod1, rotRod2, angle1, angle2;
+    Victor rotRod1, rotRod2, angle1;
     Joystick xyStick, steerStick, auxStick;
     DriverStationLCD lcd;
     MecanumDrive mDrive;
@@ -54,7 +54,6 @@ public class RobotTemplate extends SimpleRobot {
         rotRod1 = new Victor(1);
         rotRod2 = new Victor(2);
         angle1 = new Victor(3);
-        angle2 = new Victor(4);
         
         xyStick = new Joystick(1);
         steerStick = new Joystick(2);
@@ -120,17 +119,14 @@ public class RobotTemplate extends SimpleRobot {
             if(auxStick.getRawButton(3))
             {
                 angle1.set(0.7);
-                angle2.set(-0.7);
             }
             else if(auxStick.getRawButton(5))
             {
                 angle1.set(-0.7);
-                angle2.set(0.7);
             }
             else
             {
                 angle1.set(0);
-                angle2.set(0);
             }
             
             
@@ -275,5 +271,43 @@ public class RobotTemplate extends SimpleRobot {
             return 0;
             }
         }
+    }
+    
+    double getVisionDistance()
+    {
+        try 
+        {
+            ColorImage image = camera.getImage();
+            BinaryImage thresholdImage = image.thresholdHSV(80, 140, 165, 255, 200, 255);
+            image.free();
+            BinaryImage hulledImage = thresholdImage.convexHull(false);
+            thresholdImage.free();
+            
+            if(hulledImage.getNumberParticles() > 0)
+            {
+                ParticleAnalysisReport report;
+                for(int i = 0; i < hulledImage.getNumberParticles(); i++)
+                {
+                    report = hulledImage.getParticleAnalysisReport(i);
+                    if(report.boundingRectWidth / report.boundingRectHeight < 1) //1 can be reduced.
+                    {
+                        //do distance calculations.
+                        //return distance.
+                    }
+                }
+            }
+           
+        } 
+        catch (AxisCameraException ex) 
+        {
+            ex.printStackTrace();
+        }
+        catch (NIVisionException ex)
+        {
+            ex.printStackTrace();
+        }
+        
+        
+        return 0;
     }
 }
