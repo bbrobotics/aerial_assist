@@ -301,13 +301,14 @@ public class RobotTemplate extends SimpleRobot {
         catch (AxisCameraException ex) 
         {
             ex.printStackTrace();
+            return -2;
         }
         catch (NIVisionException ex)
         {
             ex.printStackTrace();
+            return -3;
         }
         
-        
-        return 0;
+        return -1;
     }
 }
