@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.camera.AxisCamera;
 import edu.wpi.first.wpilibj.camera.AxisCameraException;
@@ -36,11 +37,13 @@ import team1517.aerialassist.mecanum.MecanumDrive;
 public class RobotTemplate extends SimpleRobot {
     
     final int AREA_MINIMUM = 100;
+    double tiltValue = 0.5, rotValue = 0.5;
     
     AxisCamera camera;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB, winchMotor;
     Victor rotRod1, rotRod2, angle1;
+    Servo tiltServo, rotServo;
     Joystick xyStick, steerStick, auxStick;
     DriverStationLCD lcd;
     MecanumDrive mDrive;
@@ -54,6 +57,9 @@ public class RobotTemplate extends SimpleRobot {
         rotRod1 = new Victor(1);
         rotRod2 = new Victor(2);
         angle1 = new Victor(3);
+        
+        tiltServo = new Servo(4);
+        rotServo = new Servo(5);
         
         xyStick = new Joystick(1);
         steerStick = new Joystick(2);
@@ -128,6 +134,30 @@ public class RobotTemplate extends SimpleRobot {
             {
                 angle1.set(0);
             }
+            
+            tiltServo.set(tiltValue);
+            rotServo.set(rotValue);
+            
+            if(auxStick.getRawAxis(6) > 0 && tiltValue <= 0.95)
+            {
+                tiltValue = tiltValue + 0.05;
+            }
+            else if(auxStick.getRawAxis(6) < 0 && tiltValue >= 0.05)
+            {
+                tiltValue = tiltValue - 0.05;
+            }
+            
+            if(auxStick.getRawAxis(5) > 0 && rotValue <= 0.95)
+            {
+                rotValue = rotValue + 0.05;
+            }
+            else if(auxStick.getRawAxis(5) < 0 && rotValue >= 0.05)
+            {
+                rotValue = rotValue - 0.05;
+            }
+            
+            lcd.println(DriverStationLCD.Line.kUser1, 1, "tilt " + tiltValue + "       ");
+            lcd.println(DriverStationLCD.Line.kUser2, 1, "rot " + rotValue + "       ");
             
             
             lcd.updateLCD();
