@@ -111,28 +111,24 @@ public class RobotTemplate extends SimpleRobot {
              */
             exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
             if(!exceptionFree || getCANJaguarsPowerCycled())
+            {
                 initCANJaguars();
+            }
             
-            /*
-             * Controls the rotation of the rotrods. 
-             */
-            rotRod1.set(auxStick.getY());
-            rotRod2.set(-1 * auxStick.getY());
+            angle1.set(auxStick.getY() / 2);
             
-            /*
-             * Controls the angle of the rotrods.
-             */
             if(auxStick.getRawButton(3))
             {
-                angle1.set(0.7);
+                rotRod1.set(0.7);
+                
             }
             else if(auxStick.getRawButton(5))
             {
-                angle1.set(-0.7);
+                rotRod1.set(-0.7);
             }
             else
             {
-                angle1.set(0);
+                rotRod1.set(0);
             }
             
             tiltServo.set(tiltValue);
