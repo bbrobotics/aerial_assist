@@ -58,8 +58,8 @@ public class RobotTemplate extends SimpleRobot {
         rotRod2 = new Victor(2);
         angle1 = new Victor(3);
         
-        tiltServo = new Servo(4);
-        rotServo = new Servo(5);
+        tiltServo = new Servo(5);
+        rotServo = new Servo(6);
         
         xyStick = new Joystick(1);
         steerStick = new Joystick(2);
