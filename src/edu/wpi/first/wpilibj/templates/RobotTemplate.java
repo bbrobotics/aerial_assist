@@ -11,8 +11,10 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DriverStationLCD;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
@@ -36,13 +38,16 @@ import team1517.aerialassist.mecanum.MecanumDrive;
  */
 public class RobotTemplate extends SimpleRobot {
     
+    boolean catapultArmed = false;
     final int AREA_MINIMUM = 100;
     double tiltValue = 0.5, rotValue = 0.85;
     
     AxisCamera camera;
     CriteriaCollection cc;
-    CANJaguar aF, aB, bF, bB, winchMotor;
+    CANJaguar aF, aB, bF, bB;
+    DigitalInput armedSwitch;
     Victor rotRod1, rotRod2, angle1;
+    Talon winchMotor;
     Servo tiltServo, rotServo;
     Joystick xyStick, steerStick, auxStick;
     DriverStationLCD lcd;
@@ -54,9 +59,13 @@ public class RobotTemplate extends SimpleRobot {
         cc = new CriteriaCollection();      // create the criteria for the particle filter
         cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
         
+        armedSwitch = new DigitalInput(1);
+        
         rotRod1 = new Victor(1);
         rotRod2 = new Victor(2);
         angle1 = new Victor(3);
+        
+        winchMotor = new Talon(4);
         
         tiltServo = new Servo(5);
         rotServo = new Servo(6);
@@ -181,6 +190,44 @@ public class RobotTemplate extends SimpleRobot {
         }
     }
     
+    /**
+     * Moves the catapult into armed poisiton.
+     */
+    void armCatapult()
+    {
+        if(!catapultArmed)
+        {
+            while(!armedSwitch.get())
+            {
+                winchMotor.set(0.7);
+            }
+            winchMotor.set(0);
+            catapultArmed = true;
+        }
+    }
+    
+    /**
+     * Fires the catapult.
+     */
+    void fireCataput()
+    {
+        if(catapultArmed)
+        {
+            Timer timer = new Timer();
+            timer.start();
+            
+            while(timer.get() < 0.25)
+            {
+                winchMotor.set(0.7);
+            }
+            
+            
+            winchMotor.set(0);
+            catapultArmed = false;
+            timer.stop();
+        }
+    }
+    
     private boolean getHotGoal()
     {
         try {
@@ -229,37 +276,31 @@ public class RobotTemplate extends SimpleRobot {
             bF = null;
             aB = null;
             bB = null;
-            winchMotor = null;
             
             aF = new CANJaguar(1);
             bF = new CANJaguar(2);
             aB = new CANJaguar(3);
             bB = new CANJaguar(4);
-            //winchMotor = new CANJaguar(5);
             
             aF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
             bF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
             aB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
             bB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            //winchMotor.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
             
             aF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             bF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             aB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             bB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            //winchMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
             
             aF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             bF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             aB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             bB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-            //winchMotor.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             
             aF.configEncoderCodesPerRev(100);
             bF.configEncoderCodesPerRev(100);
             aB.configEncoderCodesPerRev(100);
             bB.configEncoderCodesPerRev(100);
-            //winchMotor.configEncoderCodesPerRev(100);
         }
         catch(CANTimeoutException ex)
         {
