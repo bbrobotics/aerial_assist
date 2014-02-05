@@ -37,7 +37,7 @@ import team1517.aerialassist.mecanum.MecanumDrive;
 public class RobotTemplate extends SimpleRobot {
     
     final int AREA_MINIMUM = 100;
-    double tiltValue = 0.5, rotValue = 0.5;
+    double tiltValue = 0.5, rotValue = 0.85;
     
     AxisCamera camera;
     CriteriaCollection cc;
@@ -115,16 +115,16 @@ public class RobotTemplate extends SimpleRobot {
                 initCANJaguars();
             }
             
-            angle1.set(auxStick.getY() / 2);
+            angle1.set(auxStick.getY() * 0.7);
             
             if(auxStick.getRawButton(3))
             {
-                rotRod1.set(0.7);
+                rotRod1.set(0.5);
                 
             }
             else if(auxStick.getRawButton(5))
             {
-                rotRod1.set(-0.7);
+                rotRod1.set(-0.5);
             }
             else
             {
@@ -155,7 +155,7 @@ public class RobotTemplate extends SimpleRobot {
             lcd.println(DriverStationLCD.Line.kUser1, 1, "tilt " + tiltValue + "       ");
             lcd.println(DriverStationLCD.Line.kUser2, 1, "rot " + rotValue + "       ");
             
-            
+            Timer.delay(0.1);
             lcd.updateLCD();
         }
     }
@@ -170,8 +170,14 @@ public class RobotTemplate extends SimpleRobot {
             if(auxStick.getRawButton(1))
             {
                 lcd.println(DriverStationLCD.Line.kUser1, 1, " " + getHotGoal());
-                lcd.updateLCD();
             }
+            
+            if(auxStick.getRawButton(2))
+            {
+                lcd.println(DriverStationLCD.Line.kUser2, 1, " " + getVisionDistance());
+            }
+            
+            lcd.updateLCD();
         }
     }
     
@@ -319,6 +325,7 @@ public class RobotTemplate extends SimpleRobot {
                     {
                         //do distance calculations.
                         //return distance.
+                        return report.center_mass_y_normalized + 1;
                     }
                 }
             }
