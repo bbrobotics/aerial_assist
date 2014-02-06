@@ -128,16 +128,18 @@ public class RobotTemplate extends SimpleRobot {
             
             if(auxStick.getRawButton(3))
             {
-                rotRod1.set(0.5);
-                
+                rotRod1.set(-0.5);
+                rotRod2.set(0.5);
             }
             else if(auxStick.getRawButton(5))
             {
-                rotRod1.set(-0.5);
+                rotRod1.set(0.5);
+                rotRod2.set(-0.5);
             }
             else
             {
                 rotRod1.set(0);
+                rotRod2.set(0);
             }
             
             tiltServo.set(tiltValue);
