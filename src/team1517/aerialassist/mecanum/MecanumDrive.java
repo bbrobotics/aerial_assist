@@ -54,6 +54,11 @@ public class MecanumDrive {
             magnitude = Math.sqrt(x * x + y * y);//Calculates the magnitude of the output vector.
             theta = MathUtils.atan(y / x);//Calculates the direction of the output vector.
             
+            if(x < 0)
+            {
+                theta = theta + Math.PI;
+            }
+            
             A = Math.sqrt(2) * Math.sin(theta - 3 * Math.PI / 4);//Sets diagonal A to the value for theta of mechanum graph.
             B = Math.sqrt(2) * Math.cos(theta + Math.PI / 4);//Sets diagonal B to the value for theta of the mechanum equation.
             
