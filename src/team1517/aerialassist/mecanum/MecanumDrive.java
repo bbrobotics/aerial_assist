@@ -32,6 +32,7 @@ public class MecanumDrive {
             
         try 
         {
+            //Sets the control mode of the CANJaguars to percentVbus.
             if(aF.getControlMode() != CANJaguar.ControlMode.kPercentVbus)
             {
                 aF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
@@ -50,38 +51,39 @@ public class MecanumDrive {
             y = mY;
             T = twist;
             
-            magnitude = Math.sqrt(x * x + y * y);
-            theta = MathUtils.atan(y / x);
+            magnitude = Math.sqrt(x * x + y * y);//Calculates the magnitude of the output vector.
+            theta = MathUtils.atan(y / x);//Calculates the direction of the output vector.
             
             if(x < 0)
             {
                 theta = theta + Math.PI;
             }
             
-            A = Math.sqrt(2) * Math.sin(theta - 3 * Math.PI / 4);
-            B = Math.sqrt(2) * Math.cos(theta + Math.PI / 4);
+            A = Math.sqrt(2) * Math.sin(theta - 3 * Math.PI / 4);//Sets diagonal A to the value for theta of mechanum graph.
+            B = Math.sqrt(2) * Math.cos(theta + Math.PI / 4);//Sets diagonal B to the value for theta of the mechanum equation.
             
-            if(A > 1)
+            if(A > 1)//Scales A to 1 if it is higher than one.
             {
                 A = 1;
             }
-            else if(A < -1) 
+            else if(A < -1)//Scales A to -1 if it is less than one. 
             {
                 A = -1;
             }
             
-            if(B > 1) 
+            if(B > 1)//Scales B to 1 if it is higher than one. 
             {
                 B = 1;
             }
-            else if(B < -1) 
+            else if(B < -1)//Scales B to -1 if it is less than one. 
             {
                 B = -1;
             }
             
-            A = A * magnitude;
+            A = A * magnitude;//Scales A and B to their actual values.
             B = B * magnitude;
             
+            //Scales the outputs by the value of the highest output, if it ls higher than 1.
             if(Math.abs(A + T) > 1 || Math.abs(A - T) > 1 || Math.abs(B + T) > 1 || Math.abs(B - T) > 1)
             {
                 highestValue = Math.abs(A + T);
@@ -118,7 +120,7 @@ public class MecanumDrive {
                 ex.printStackTrace();
                 return false;
             }
-        return true;
+        return true;//Returns true if successful.
     }
     
     public boolean pidDrive(double mX, double mY, double twist)
