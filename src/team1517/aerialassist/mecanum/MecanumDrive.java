@@ -54,7 +54,7 @@ public class MecanumDrive {
             magnitude = Math.sqrt(x * x + y * y);//Calculates the magnitude of the output vector.
             theta = MathUtils.atan(y / x);//Calculates the direction of the output vector.
             
-            if(x < 0)
+            if(x < 0)//Corrects the quadrent of theta for the value of X.
             {
                 theta = theta + Math.PI;
             }
