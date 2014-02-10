@@ -193,7 +193,7 @@ public class RobotTemplate extends SimpleRobot {
     }
     
     /**
-     * Moves the catapult into armed poisiton.
+     * Moves the catapult into armed position.
      */
     void armCatapult()
     {
@@ -218,7 +218,7 @@ public class RobotTemplate extends SimpleRobot {
             Timer timer = new Timer();
             timer.start();
             
-            while(timer.get() < 0.25)
+            while(timer.get() < 0.25)//Adjust as nessisary.
             {
                 winchMotor.set(0.7);
             }
