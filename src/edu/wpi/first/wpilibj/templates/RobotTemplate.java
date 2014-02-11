@@ -145,6 +145,21 @@ public class RobotTemplate extends SimpleRobot {
             tiltServo.set(tiltValue);
             rotServo.set(rotValue);
             
+            if(auxStick.getRawButton(1))
+            {
+                winchMotor.set(-.75);
+            }
+            
+            else if(auxStick.getRawButton(2))
+            {
+                winchMotor.set(.75);
+            }
+            
+            else
+            {
+                winchMotor.set(0);
+            }
+            
             if(auxStick.getRawAxis(6) > 0 && tiltValue <= 0.95)
             {
                 tiltValue = tiltValue + 0.05;
