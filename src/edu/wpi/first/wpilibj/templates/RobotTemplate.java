@@ -118,14 +118,20 @@ public class RobotTemplate extends SimpleRobot {
             /*
              * Controls the drive base and also handles exceptions.
              */
-            exceptionFree = mDrive.drive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
+            exceptionFree = tDrive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
             if(!exceptionFree || getCANJaguarsPowerCycled())
             {
                 initCANJaguars();
             }
             
+            /*
+             * Sets the output to the angle motor of the rot rods to the value of the y axis of the auxStick scaled by a factor of 0.7.
+             */
             angle1.set(auxStick.getY() * 0.7);
             
+            /*
+             * Controls the rot rods.
+             */
             if(auxStick.getRawButton(3))
             {
                 rotRod1.set(-0.5);
@@ -142,24 +148,31 @@ public class RobotTemplate extends SimpleRobot {
                 rotRod2.set(0);
             }
             
-            tiltServo.set(tiltValue);
-            rotServo.set(rotValue);
-            
+            /*
+             * Manual control of the catapult winch.
+             */
             if(auxStick.getRawButton(1))
             {
                 winchMotor.set(-.75);
             }
-            
             else if(auxStick.getRawButton(2))
             {
                 winchMotor.set(.75);
             }
-            
             else
             {
                 winchMotor.set(0);
             }
             
+            /*
+             * Sets the output values of the camera axis servos.
+             */
+            tiltServo.set(tiltValue);
+            rotServo.set(rotValue);
+            
+            /*
+             * Allows the user to adjust the value set to the tiltServo.
+             */
             if(auxStick.getRawAxis(6) > 0 && tiltValue <= 0.95)
             {
                 tiltValue = tiltValue + 0.05;
@@ -169,6 +182,9 @@ public class RobotTemplate extends SimpleRobot {
                 tiltValue = tiltValue - 0.05;
             }
             
+            /*
+             * Allows the user to adjust the value set to the rotServo.
+             */
             if(auxStick.getRawAxis(5) > 0 && rotValue <= 0.95)
             {
                 rotValue = rotValue + 0.05;
@@ -245,6 +261,22 @@ public class RobotTemplate extends SimpleRobot {
         }
     }
     
+    /**
+     * Added to abstract the drive method so that CAN can be switched to PWM easier and more simply.
+     * @param mX The X value of the drive vector.
+     * @param mY The Y value of the drive vector.
+     * @param twist The turn added to the output of the drive vector.
+     * @return True if successful, false if exceptions are thrown.
+     */
+    private boolean tDrive(double mX, double mY, double twist)
+    {
+        return mDrive.drive(mX, mY, twist);
+    }
+    
+    /**
+     * Detects whether the hot goal is visible.
+     * @return True if the hot goal is visible.  False if the hot goal is not visible or an exception has been thrown.
+     */
     private boolean getHotGoal()
     {
         try {
@@ -327,6 +359,10 @@ public class RobotTemplate extends SimpleRobot {
         return true;
     }
     
+    /**
+     * Detects whether one or more of the CANJaguars has lost and then regained power.
+     * @return True if power to one or more of the CANJaguars has been cycled or if a timeout exception has occurred.  False otherwise.
+     */
     private boolean getCANJaguarsPowerCycled()
     {
         try
@@ -344,6 +380,11 @@ public class RobotTemplate extends SimpleRobot {
         return false;
     }
     
+    /**
+     * Filters out noise from the input of the joysticks.
+     * @param joystickValue The raw input value from the joystick.
+     * @return The filtered value.
+     */
     double filterJoystickInput(double joystickValue)
     {
         if(Math.abs(joystickValue) > 0.1)
