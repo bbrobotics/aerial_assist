@@ -157,7 +157,7 @@ public class RobotTemplate extends SimpleRobot {
             }
             else if(auxStick.getRawButton(2))
             {
-                winchMotor.set(.75);
+                winchMotor.set(-.5);
             }
             else
             {
