@@ -55,7 +55,7 @@ public class RobotTemplate extends SimpleRobot {
     
     public RobotTemplate()
     {
-        camera = AxisCamera.getInstance();
+        //camera = AxisCamera.getInstance();
         cc = new CriteriaCollection();      // create the criteria for the particle filter
         cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
         
@@ -77,8 +77,6 @@ public class RobotTemplate extends SimpleRobot {
         lcd = DriverStationLCD.getInstance();
         
         initCANJaguars();
-        
-        mDrive = new MecanumDrive(aF, aB, bF, bB);
     }
     
     /**
@@ -125,13 +123,20 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void operatorControl() {
         boolean exceptionFree;
+        double x, y, t;
+        int i = 0;
         
         while(isOperatorControl() && isEnabled())
         {
             /*
              * Controls the drive base and also handles exceptions.
              */
-            exceptionFree = tDrive(filterJoystickInput(xyStick.getX()), filterJoystickInput(xyStick.getY()), filterJoystickInput(xyStick.getTwist()));
+            x = filterJoystickInput(xyStick.getX());
+            y = filterJoystickInput(xyStick.getY());
+            t = filterJoystickInput(xyStick.getTwist());
+         
+            exceptionFree = tDrive(x, y, t);
+            
             if(!exceptionFree || getCANJaguarsPowerCycled())
             {
                 initCANJaguars();
@@ -160,18 +165,17 @@ public class RobotTemplate extends SimpleRobot {
                 rotRod1.set(0);
                 rotRod2.set(0);
             }
-            
             /*
              * Manual control of the catapult winch.
              */
             if(auxStick.getRawButton(1))
             {
-                winchMotor.set(-0.75);
+                winchMotor.set(-0.1);
             }
             else if(auxStick.getRawButton(2))
             {
                 //winchMotor.set(-.5);
-                armCatapult();
+                //armCatapult();
             }
             else if(auxStick.getRawButton(4))
             {
@@ -179,13 +183,13 @@ public class RobotTemplate extends SimpleRobot {
             }
             else if(auxStick.getRawButton(6))
             {
-                fireCatapult();
+                //fireCatapult();
             }
             else
             {
                 winchMotor.set(0);
             }
-            
+
             /*
              * Sets the output values of the camera axis servos.
              */
@@ -215,9 +219,12 @@ public class RobotTemplate extends SimpleRobot {
             {
                 rotValue = rotValue - 0.05;
             }
-            
+        
             lcd.println(DriverStationLCD.Line.kUser1, 1, "tilt " + tiltValue + "       ");
             lcd.println(DriverStationLCD.Line.kUser2, 1, "rot " + rotValue + "       ");
+            lcd.println(DriverStationLCD.Line.kUser3, 1, "x " + x + "        ");
+            lcd.println(DriverStationLCD.Line.kUser4, 1, "y " + y + "        ");
+            lcd.println(DriverStationLCD.Line.kUser5, 1, "t " + t + "        ");
             
             Timer.delay(0.1);
             lcd.updateLCD();
@@ -284,7 +291,15 @@ public class RobotTemplate extends SimpleRobot {
      */
     private boolean tDrive(double mX, double mY, double twist)
     {
+        try
+        {
         return mDrive.drive(mX, mY, twist);
+        }
+        catch(NullPointerException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
     }
     
     /**
@@ -333,6 +348,9 @@ public class RobotTemplate extends SimpleRobot {
      */
     private boolean initCANJaguars()
     {
+        boolean successful = true;
+        
+        mDrive = null;
         try
         {
             aF = null;
@@ -364,13 +382,21 @@ public class RobotTemplate extends SimpleRobot {
             bF.configEncoderCodesPerRev(100);
             aB.configEncoderCodesPerRev(100);
             bB.configEncoderCodesPerRev(100);
+            
+            aF.setX(0);
+            bF.setX(0);
+            aB.setX(0);
+            bB.setX(0);
         }
         catch(CANTimeoutException ex)
         {
             ex.printStackTrace();
-            return false;
+            successful = true;
         }
-        return true;
+        
+        mDrive = new MecanumDrive(aF, aB, bF, bB);
+        
+        return successful;
     }
     
     /**

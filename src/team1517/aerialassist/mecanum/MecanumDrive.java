@@ -6,7 +6,12 @@ package team1517.aerialassist.mecanum;
 
 import com.sun.squawk.util.MathUtils;
 import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.can.CANExceptionFactory;
+import edu.wpi.first.wpilibj.can.CANInvalidBufferException;
+import edu.wpi.first.wpilibj.can.CANMessageNotAllowedException;
+import edu.wpi.first.wpilibj.can.CANNotInitializedException;
 
 /**
  *
@@ -15,6 +20,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class MecanumDrive {
     
     CANJaguar aF, aB, bF, bB;
+    DriverStationLCD lcd;
     final double mP = 1, mI = 0, mD = 0;//All final variables will have to be tweaked through testing.
     final int MAX_RPM = 100;
     
@@ -24,10 +30,14 @@ public class MecanumDrive {
         aB = aBack;
         bF = bFront;
         bB = bBack;
+        lcd = DriverStationLCD.getInstance();
     }
     
     public boolean drive(double mX, double mY, double twist)
     {   
+        
+        lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 000");
+        lcd.updateLCD();
         double x, y, magnitude, theta, highestValue, A, B, T;
             
         try 
@@ -40,10 +50,35 @@ public class MecanumDrive {
                 bF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
                 bB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
             }
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 100");
+            lcd.updateLCD();
         } 
         catch (CANTimeoutException ex) 
         {
             ex.printStackTrace();
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 101");
+            lcd.updateLCD();
+            return false;
+        }
+        catch(CANInvalidBufferException ex)
+        {
+            ex.printStackTrace();
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 102");
+            lcd.updateLCD();
+            return false;
+        }
+        catch(CANMessageNotAllowedException ex)
+        {
+            ex.printStackTrace();
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 103");
+            lcd.updateLCD();
+            return false;
+        }
+        catch(CANNotInitializedException ex)
+        {
+            ex.printStackTrace();
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 104");
+            lcd.updateLCD();
             return false;
         }
         
@@ -51,16 +86,28 @@ public class MecanumDrive {
             y = mY;
             T = twist;
             
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 200");
+            lcd.updateLCD();
+            
             magnitude = Math.sqrt(x * x + y * y);//Calculates the magnitude of the output vector.
             theta = MathUtils.atan(y / x);//Calculates the direction of the output vector.
+            
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 201");
+            lcd.updateLCD();
             
             if(x < 0)//Corrects the quadrent of theta for the value of X.
             {
                 theta = theta + Math.PI;
             }
             
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 202");
+            lcd.updateLCD();
+            
             A = Math.sqrt(2) * Math.sin(theta - 3 * Math.PI / 4);//Sets diagonal A to the value for theta of mechanum graph.
             B = Math.sqrt(2) * Math.cos(theta + Math.PI / 4);//Sets diagonal B to the value for theta of the mechanum equation.
+            
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 203");
+            lcd.updateLCD();
             
             if(A > 1)//Scales A to 1 if it is higher than one.
             {
@@ -71,6 +118,9 @@ public class MecanumDrive {
                 A = -1;
             }
             
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 204");
+            lcd.updateLCD();
+            
             if(B > 1)//Scales B to 1 if it is higher than one. 
             {
                 B = 1;
@@ -80,8 +130,13 @@ public class MecanumDrive {
                 B = -1;
             }
             
+            lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 205");
+            lcd.updateLCD();
+            
             A = A * magnitude;//Scales A and B to their actual values.
             B = B * magnitude;
+            
+            
             
             //Scales the outputs by the value of the highest output, if it ls higher than 1.
             if(Math.abs(A + T) > 1 || Math.abs(A - T) > 1 || Math.abs(B + T) > 1 || Math.abs(B - T) > 1)
@@ -218,6 +273,21 @@ public class MecanumDrive {
             bB.setX(MAX_RPM * ((B + T) / highestValue)); 
         }
         catch(CANTimeoutException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+        catch(CANInvalidBufferException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+        catch(CANMessageNotAllowedException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+        catch(CANNotInitializedException ex)
         {
             ex.printStackTrace();
             return false;
