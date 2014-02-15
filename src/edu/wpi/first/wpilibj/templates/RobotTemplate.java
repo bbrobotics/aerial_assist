@@ -61,8 +61,8 @@ public class RobotTemplate extends SimpleRobot {
         
         armedSwitch = new DigitalInput(1);
         
-        rotRod1 = new Victor(1);
-        rotRod2 = new Victor(2);
+        rotRod1 = new Victor(8);
+        rotRod2 = new Victor(9);
         angle1 = new Victor(3);
         
         winchMotor = new Talon(4);
@@ -85,26 +85,39 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
+        Timer timer = new Timer();
+        timer.start();
         Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
-        boolean isHotGoalStarting = getHotGoal();
+        boolean isHotGoalStarting = false; //getHotGoal();
         try
         {
-            while(aF.getPosition() < 0.7)
+            if(!isHotGoalStarting)
             {
-                mDrive.drive(0, 1, 0);
+                /*while(Math.abs(bF.getPosition()) < 8.91)
+                {
+                    mDrive.drive(0, -0.7, 0);
+                    lcd.println(DriverStationLCD.Line.kUser1, 1, "" + aF.getPosition());
+                    lcd.updateLCD();
+                }
+                mDrive.drive(0, 0, 0);
+                Timer.delay(5 - timer.get());*/
+                Timer.delay(2);
             }
-            mDrive.drive(0, 0, 0);   
+            while(Math.abs(bF.getPosition()) < 10.18)
+            {
+                mDrive.drive(0, -0.7, 0);
+                lcd.println(DriverStationLCD.Line.kUser1, 1, "" + aF.getPosition());
+                lcd.updateLCD();
+            }
+            mDrive.drive(0, 0, 0);
         }
         catch(CANTimeoutException ex)
         {
             ex.printStackTrace();
             initCANJaguars();
         }
-        if(!isHotGoalStarting)
-        {
-            Timer.delay(4);
-        }
-        //Shoot.        
+        timer.stop();
+                
     }
 
     /**
@@ -153,11 +166,20 @@ public class RobotTemplate extends SimpleRobot {
              */
             if(auxStick.getRawButton(1))
             {
-                winchMotor.set(-.75);
+                winchMotor.set(-0.75);
             }
             else if(auxStick.getRawButton(2))
             {
-                winchMotor.set(-.5);
+                //winchMotor.set(-.5);
+                armCatapult();
+            }
+            else if(auxStick.getRawButton(4))
+            {
+                winchMotor.set(0.5);
+            }
+            else if(auxStick.getRawButton(6))
+            {
+                fireCatapult();
             }
             else
             {
@@ -228,36 +250,28 @@ public class RobotTemplate extends SimpleRobot {
      */
     void armCatapult()
     {
-        if(!catapultArmed)
+        if(!armedSwitch.get())
         {
-            while(!armedSwitch.get())
-            {
-                winchMotor.set(0.7);
-            }
+            winchMotor.set(-0.5);
+        }
+        else 
+        {
             winchMotor.set(0);
-            catapultArmed = true;
         }
     }
     
     /**
      * Fires the catapult.
      */
-    void fireCataput()
+    void fireCatapult()
     {
-        if(catapultArmed)
+        if(armedSwitch.get())
         {
-            Timer timer = new Timer();
-            timer.start();
-            
-            while(timer.get() < 0.25)//Adjust as nessisary.
+            while(armedSwitch.get())
             {
-                winchMotor.set(0.7);
+                winchMotor.set(-0.75);
             }
-            
-            
             winchMotor.set(0);
-            catapultArmed = false;
-            timer.stop();
         }
     }
     
