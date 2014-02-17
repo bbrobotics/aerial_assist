@@ -137,7 +137,7 @@ public class RobotTemplate extends SimpleRobot {
          
             exceptionFree = tDrive(x, y, t);
             
-            if(!exceptionFree || getCANJaguarsPowerCycled())
+            if(!exceptionFree /*|| getCANJaguarsPowerCycled()*/)
             {
                 initCANJaguars();
             }
@@ -226,7 +226,7 @@ public class RobotTemplate extends SimpleRobot {
             lcd.println(DriverStationLCD.Line.kUser4, 1, "y " + y + "        ");
             lcd.println(DriverStationLCD.Line.kUser5, 1, "t " + t + "        ");
             
-            Timer.delay(0.1);
+            Timer.delay(0.01);
             lcd.updateLCD();
         }
     }
@@ -298,7 +298,7 @@ public class RobotTemplate extends SimpleRobot {
         catch(NullPointerException ex)
         {
             ex.printStackTrace();
-            return false;
+            return true;
         }
     }
     
@@ -351,47 +351,50 @@ public class RobotTemplate extends SimpleRobot {
         boolean successful = true;
         
         mDrive = null;
-        try
+        while(aF == null || bF == null || aB == null || bB == null)
         {
-            aF = null;
-            bF = null;
-            aB = null;
-            bB = null;
+            try
+            {
+                aF = null;
+                bF = null;
+                aB = null;
+                bB = null;
             
-            aF = new CANJaguar(1);
-            bF = new CANJaguar(2);
-            aB = new CANJaguar(3);
-            bB = new CANJaguar(4);
-            
-            aF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            bF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            aB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            bB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-            
-            aF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            bF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            aB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            bB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            
-            aF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-            bF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-            aB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-            bB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-            
-            aF.configEncoderCodesPerRev(100);
-            bF.configEncoderCodesPerRev(100);
-            aB.configEncoderCodesPerRev(100);
-            bB.configEncoderCodesPerRev(100);
-            
-            aF.setX(0);
-            bF.setX(0);
-            aB.setX(0);
-            bB.setX(0);
-        }
-        catch(CANTimeoutException ex)
-        {
-            ex.printStackTrace();
-            successful = true;
+                aF = new CANJaguar(1);
+                bF = new CANJaguar(2);
+                aB = new CANJaguar(3);
+                bB = new CANJaguar(4);
+
+                aF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+                bF.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+                aB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+                bB.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+
+                aF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                bF.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                aB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                bB.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+
+                aF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+                bF.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+                aB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+                bB.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+
+                aF.configEncoderCodesPerRev(100);
+                bF.configEncoderCodesPerRev(100);
+                aB.configEncoderCodesPerRev(100);
+                bB.configEncoderCodesPerRev(100);
+
+                //aF.setX(0);
+                //bF.setX(0);
+                //aB.setX(0);
+                //bB.setX(0);
+            }
+            catch(CANTimeoutException ex)
+            {
+                ex.printStackTrace();
+                successful = true;
+            }
         }
         
         mDrive = new MecanumDrive(aF, aB, bF, bB);

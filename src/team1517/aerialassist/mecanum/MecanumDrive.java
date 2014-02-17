@@ -60,7 +60,7 @@ public class MecanumDrive {
             lcd.updateLCD();
             return false;
         }
-        catch(CANInvalidBufferException ex)
+        /*catch(CANInvalidBufferException ex)
         {
             ex.printStackTrace();
             lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 102");
@@ -80,7 +80,7 @@ public class MecanumDrive {
             lcd.println(DriverStationLCD.Line.kUser6, 1, "error code 104");
             lcd.updateLCD();
             return false;
-        }
+        }*/
         
             x = mX;
             y = mY;
@@ -277,7 +277,7 @@ public class MecanumDrive {
             ex.printStackTrace();
             return false;
         }
-        catch(CANInvalidBufferException ex)
+        /*catch(CANInvalidBufferException ex)
         {
             ex.printStackTrace();
             return false;
@@ -291,7 +291,7 @@ public class MecanumDrive {
         {
             ex.printStackTrace();
             return false;
-        }
+        }*/
         return true;
     }
 }
