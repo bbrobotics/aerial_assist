@@ -131,7 +131,7 @@ public class RobotTemplate extends SimpleRobot {
             /*
              * Controls the drive base and also handles exceptions.
              */
-            x = filterJoystickInput(xyStick.getX());
+            x = filterJoystickInput(steerStick.getX());
             y = filterJoystickInput(xyStick.getY());
             t = filterJoystickInput(xyStick.getTwist());
          
@@ -150,12 +150,12 @@ public class RobotTemplate extends SimpleRobot {
             /*
              * Controls the rot rods.
              */
-            if(auxStick.getRawButton(3))
+            if(auxStick.getRawButton(1))
             {
-                rotRod1.set(-0.5);
+                rotRod1.set(-0.5); 
                 rotRod2.set(0.5);
             }
-            else if(auxStick.getRawButton(5))
+            else if(auxStick.getRawButton(2))
             {
                 rotRod1.set(0.5);
                 rotRod2.set(-0.5);
@@ -168,27 +168,27 @@ public class RobotTemplate extends SimpleRobot {
             /*
              * Manual control of the catapult winch.
              */
-            if(auxStick.getRawButton(1))
-            {
-                winchMotor.set(-0.1);
-            }
-            else if(auxStick.getRawButton(2))
-            {
-                //winchMotor.set(-.5);
-                //armCatapult();
-            }
-            else if(auxStick.getRawButton(4))
-            {
-                winchMotor.set(0.5);
-            }
-            else if(auxStick.getRawButton(6))
-            {
-                //fireCatapult();
-            }
-            else
-            {
-                winchMotor.set(0);
-            }
+//            if(auxStick.getRawButton(1))
+//            {
+//                winchMotor.set(-0.1);
+//            }
+//            else if(auxStick.getRawButton(2))
+//            {
+//                //winchMotor.set(-.5);
+//                //armCatapult();
+//            }
+//            else if(auxStick.getRawButton(4))
+//            {
+//                winchMotor.set(0.5);
+//            }
+//            else if(auxStick.getRawButton(6))
+//            {
+//                //fireCatapult();
+//            }
+//            else
+//            {
+//                winchMotor.set(0);
+//            }
 
             /*
              * Sets the output values of the camera axis servos.
