@@ -45,7 +45,7 @@ public class RobotTemplate extends SimpleRobot {
     AxisCamera camera;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB;
-    DigitalInput in1, in3, in4, in5, armedSwitch;
+    DigitalInput armedSwitch;
     Victor rotRod1, rotRod2, angle1;
     Talon winchMotor;
     Servo tiltServo, rotServo;
@@ -59,11 +59,7 @@ public class RobotTemplate extends SimpleRobot {
         cc = new CriteriaCollection();      // create the criteria for the particle filter
         cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
         
-        in1 = new DigitalInput(1);
         armedSwitch = new DigitalInput(2);
-        in3 = new DigitalInput(3);
-        in4 = new DigitalInput(4);
-        in5 = new DigitalInput(5);
         
         rotRod1 = new Victor(8);
         rotRod2 = new Victor(9);
@@ -95,14 +91,6 @@ public class RobotTemplate extends SimpleRobot {
         {
             if(!isHotGoalStarting)
             {
-                /*while(Math.abs(bF.getPosition()) < 8.91)
-                {
-                    mDrive.drive(0, -0.7, 0);
-                    lcd.println(DriverStationLCD.Line.kUser1, 1, "" + aF.getPosition());
-                    lcd.updateLCD();
-                }
-                mDrive.drive(0, 0, 0);
-                Timer.delay(5 - timer.get());*/
                 Timer.delay(2);
             }
             while(Math.abs(bF.getPosition()) < 10.18)
@@ -128,7 +116,6 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         boolean exceptionFree = true;
         double x = 0, y = 0, t = 0;
-        int i = 0;
         
         while(isOperatorControl() && isEnabled())
         {
@@ -160,10 +147,10 @@ public class RobotTemplate extends SimpleRobot {
                 exceptionFree = tDrive(x, y, t); 
             }
             
-             if(!exceptionFree /*|| getCANJaguarsPowerCycled()*/)
-                {
-                    initCANJaguars();
-                }   
+            if(!exceptionFree)
+            {
+                initCANJaguars();
+            }   
             
             if(auxStick.getRawButton(1))
             {
@@ -178,7 +165,7 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             /*
-             * Controls the rot rods.
+             * Controls the rotation of the rot rods.
              */
             if(auxStick.getRawButton(3))
             {
@@ -195,6 +182,7 @@ public class RobotTemplate extends SimpleRobot {
                 rotRod1.set(0);
                 rotRod2.set(0);
             }
+            
             /*
              * Manual control of the catapult winch.
              */
@@ -204,12 +192,10 @@ public class RobotTemplate extends SimpleRobot {
             }
             else if(auxStick.getRawButton(4))
             {
-                //winchMotor.set(-0.3);
                 armCatapult();
             }
             else if(auxStick.getRawButton(6))
             {
-                //winchMotor.set(0.5);
                 fireCatapult();
             }
             else
@@ -232,17 +218,6 @@ public class RobotTemplate extends SimpleRobot {
             tiltServo.set(tiltValue);
             rotServo.set(rotValue);
             
-//            /*
-//             * Allows the user to adjust the value set to the tiltServo.
-//             */
-//            if(auxStick.getRawAxis(6) > 0 && tiltValue <= 0.95)
-//            {
-//                tiltValue = tiltValue + 0.05;
-//            }
-//            else if(auxStick.getRawAxis(6) < 0 && tiltValue >= 0.05)
-//            {
-//                tiltValue = tiltValue - 0.05;
-//            }
             
             /*
              * Allows the user to adjust the value set to the rotServo.
