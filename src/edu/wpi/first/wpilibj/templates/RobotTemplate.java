@@ -320,14 +320,23 @@ public class RobotTemplate extends SimpleRobot {
      */
     private void fireCatapult()
     {
+        Timer timer = new Timer();
         if(armedSwitch.get())
         {
-            while(armedSwitch.get())
+            timer.start();
+            while(armedSwitch.get() && timer.get() < 1)
             {
-                winchMotor.set(-0.7);
+                winchMotor.set(-0.6);
             }
-                winchMotor.set(0);
-        }   
+            winchMotor.set(0);
+            timer.reset();
+            while(timer.get() <= 0.03125)
+            {
+                winchMotor.set(0.5);
+            }
+            winchMotor.set(0);
+            timer.stop();
+        }    
     }
    
     
