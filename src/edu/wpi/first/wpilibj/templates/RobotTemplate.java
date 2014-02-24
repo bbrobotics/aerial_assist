@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.image.NIVisionException;
 import edu.wpi.first.wpilibj.image.ParticleAnalysisReport;
 
 import team1517.aerialassist.mecanum.MecanumDrive;
+import team1517.aerialassist.io.AutonomousSwitch;
+import team1517.aerialassist.io.DriverLCD;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,6 +45,7 @@ public class RobotTemplate extends SimpleRobot {
     double tiltValue = 0.5, rotValue = 0.85, winchPower = -0.9;
     
     AxisCamera camera;
+    AutonomousSwitch autonomousSwitch;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB;
     DigitalInput armedSwitch;
@@ -50,7 +53,7 @@ public class RobotTemplate extends SimpleRobot {
     Talon winchMotor;
     Servo tiltServo, rotServo;
     Joystick xyStick, steerStick, auxStick;
-    DriverStationLCD lcd;
+    DriverLCD lcd;
     MecanumDrive mDrive;
     
     public RobotTemplate()
@@ -59,7 +62,8 @@ public class RobotTemplate extends SimpleRobot {
         cc = new CriteriaCollection();      // create the criteria for the particle filter
         cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
         
-        armedSwitch = new DigitalInput(2);
+        armedSwitch = new DigitalInput(1);
+        autonomousSwitch = new AutonomousSwitch(2, 3, 4, 5);
         
         rotRod1 = new Victor(8);
         rotRod2 = new Victor(9);
@@ -74,7 +78,7 @@ public class RobotTemplate extends SimpleRobot {
         steerStick = new Joystick(2);
         auxStick = new Joystick(3);
         
-        lcd = DriverStationLCD.getInstance();
+        lcd = new DriverLCD();
         
         initCANJaguars();
     }
@@ -83,30 +87,66 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-        Timer timer = new Timer();
-        timer.start();
-        Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
-        boolean isHotGoalStarting = false; //getHotGoal();
-        try
+        int position = autonomousSwitch.getPosition();
+        
+        switch(position)
         {
-            if(!isHotGoalStarting)
-            {
-                Timer.delay(2);
-            }
-            while(Math.abs(bF.getPosition()) < 10.18)
-            {
-                mDrive.drive(0, -0.7, 0);
-                lcd.println(DriverStationLCD.Line.kUser1, 1, "" + aF.getPosition());
+            case(1):
+                Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
+                boolean isHotGoalStarting = false; //getHotGoal();
+                try
+                {
+                    if(!isHotGoalStarting)
+                    {
+                        Timer.delay(2);
+                    }
+                    while(Math.abs(bF.getPosition()) < 10.18)
+                    {
+                        mDrive.drive(0, -0.7, 0);
+                        lcd.println(1, 1, "" + aF.getPosition());
+                        lcd.updateLCD();
+                    }
+                    mDrive.drive(0, 0, 0);
+                }
+                catch(CANTimeoutException ex)
+                {
+                    ex.printStackTrace();
+                    initCANJaguars();
+                }
+                break;
+            case(2):
+                try
+                {
+                    while(Math.abs(bF.getPosition()) < 8.12)
+                    {
+                        mDrive.drive(0, -0.7, 0);
+                    }
+                    mDrive.drive(0, 0, 0);
+                    if(!armedSwitch.get())
+                    {
+                        while(!armedSwitch.get())
+                        {
+                            armCatapult();
+                        }
+                    }
+                    fireCatapult();
+                }
+                catch(CANTimeoutException ex)
+                {
+                    ex.printStackTrace();
+                    initCANJaguars();
+                }
+                break;
+            case(-1):
+                lcd.println(2, 1, "Check switch wiring.");
                 lcd.updateLCD();
-            }
-            mDrive.drive(0, 0, 0);
+                break;
+            default:
+                lcd.println(2, 1, "Check switch position");
+                lcd.updateLCD();
+                break;
+                
         }
-        catch(CANTimeoutException ex)
-        {
-            ex.printStackTrace();
-            initCANJaguars();
-        }
-        timer.stop();
                 
     }
 
@@ -231,8 +271,8 @@ public class RobotTemplate extends SimpleRobot {
                 rotValue = rotValue - 0.05;
             }
         
-            lcd.println(DriverStationLCD.Line.kUser1, 1, "winch " + winchPower + "       ");
-            lcd.println(DriverStationLCD.Line.kUser3, 1, "input2" + armedSwitch.get() + "          ");
+            lcd.println(1, 1, "winch " + winchPower + "       ");
+            lcd.println(3, 1, "input2" + armedSwitch.get() + "          ");
             
             Timer.delay(0.01);
             lcd.updateLCD();
@@ -248,12 +288,12 @@ public class RobotTemplate extends SimpleRobot {
         {
             if(auxStick.getRawButton(1))
             {
-                lcd.println(DriverStationLCD.Line.kUser1, 1, " " + getHotGoal());
+                lcd.println(1, 1, " " + getHotGoal());
             }
             
             if(auxStick.getRawButton(2))
             {
-                lcd.println(DriverStationLCD.Line.kUser2, 1, " " + getVisionDistance());
+                lcd.println(2, 1, " " + getVisionDistance());
             }
             
             lcd.updateLCD();
@@ -327,7 +367,7 @@ public class RobotTemplate extends SimpleRobot {
             
             if(hulledImage.getNumberParticles() > 0)
             {
-                lcd.println(DriverStationLCD.Line.kUser2,1, "" + hulledImage.getNumberParticles());
+                lcd.println(2, 1, "" + hulledImage.getNumberParticles());
                 lcd.updateLCD();
                 ParticleAnalysisReport report;
                 for(int i = 0; i < hulledImage.getNumberParticles(); i++)

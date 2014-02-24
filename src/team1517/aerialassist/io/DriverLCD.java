@@ -46,7 +46,7 @@ public class DriverLCD {
             }
             return true;
         }
-    public void push () {
+    public void updateLCD() {
         /* basically just calls the LCD update method; only advantage is that
            the main class doesn't need to import the official FIRST LCD class
            solely for this purpose */
