@@ -10,6 +10,7 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
@@ -28,7 +29,6 @@ import edu.wpi.first.wpilibj.image.NIVisionException;
 import edu.wpi.first.wpilibj.image.ParticleAnalysisReport;
 
 import team1517.aerialassist.mecanum.MecanumDrive;
-import team1517.aerialassist.io.AutonomousSwitch;
 import team1517.aerialassist.io.DriverLCD;
 
 /**
@@ -42,12 +42,12 @@ public class RobotTemplate extends SimpleRobot {
     
     boolean catapultArmed = false;
     final int AREA_MINIMUM = 100;
-    double tiltValue = 0.5, rotValue = 0.85, winchPower = -0.9;
+    double tiltValue = 0.5, rotValue = 0.85, winchPower = -1;
     
     AxisCamera camera;
-    AutonomousSwitch autonomousSwitch;
     CriteriaCollection cc;
     CANJaguar aF, aB, bF, bB;
+    DriverStation driverStation;
     DigitalInput armedSwitch;
     Victor rotRod1, rotRod2, angle1;
     Talon winchMotor;
@@ -63,7 +63,8 @@ public class RobotTemplate extends SimpleRobot {
         cc.addCriteria(NIVision.MeasurementType.IMAQ_MT_AREA, AREA_MINIMUM, 215472, false);
         
         armedSwitch = new DigitalInput(1);
-        autonomousSwitch = new AutonomousSwitch(2, 3, 4, 5);
+        
+        driverStation = DriverStation.getInstance();
         
         rotRod1 = new Victor(8);
         rotRod2 = new Victor(9);
@@ -87,67 +88,63 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-        int position = autonomousSwitch.getPosition();
+        boolean isLowGoal = driverStation.getDigitalIn(1);
+        Timer aTimer = new Timer();
+        aTimer.start();
+        tiltServo.set(0.5);
+        rotServo.set(0.5);
         
-        switch(position)
+        if(isLowGoal)
         {
-            case(1):
-                Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
-                boolean isHotGoalStarting = false; //getHotGoal();
-                try
+           Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
+            boolean isHotGoalStarting = getHotGoal();
+            try
+            {
+                if(!isHotGoalStarting)
                 {
-                    if(!isHotGoalStarting)
-                    {
-                        Timer.delay(2);
-                    }
-                    while(Math.abs(bF.getPosition()) < 10.18)
-                    {
-                        mDrive.drive(0, -0.7, 0);
-                        lcd.println(1, 1, "" + aF.getPosition());
-                        lcd.updateLCD();
-                    }
-                    mDrive.drive(0, 0, 0);
+                    Timer.delay(2);
                 }
-                catch(CANTimeoutException ex)
+                while(Math.abs(bF.getPosition()) < 10.18 && aTimer.get() < 10)
                 {
-                    ex.printStackTrace();
-                    initCANJaguars();
+                    mDrive.drive(0, -0.7, 0);
+                    lcd.println(1, 1, "" + aF.getPosition());
+                    lcd.updateLCD();
                 }
-                break;
-            case(2):
-                try
-                {
-                    while(Math.abs(bF.getPosition()) < 8.12)
-                    {
-                        mDrive.drive(0, -0.7, 0);
-                    }
-                    mDrive.drive(0, 0, 0);
-                    if(!armedSwitch.get())
-                    {
-                        while(!armedSwitch.get())
-                        {
-                            armCatapult();
-                        }
-                    }
-                    fireCatapult();
-                }
-                catch(CANTimeoutException ex)
-                {
-                    ex.printStackTrace();
-                    initCANJaguars();
-                }
-                break;
-            case(-1):
-                lcd.println(2, 1, "Check switch wiring.");
-                lcd.updateLCD();
-                break;
-            default:
-                lcd.println(2, 1, "Check switch position");
-                lcd.updateLCD();
-                break;
-                
+                mDrive.drive(0, 0, 0);
+            }
+            catch(CANTimeoutException ex)
+            {
+                ex.printStackTrace();
+                initCANJaguars();
+            } 
         }
-                
+        else
+        {
+            try
+            {
+                while(Math.abs(bF.getPosition()) < 8.12 && aTimer.get() < 10)
+                {
+                    mDrive.drive(0, -0.7, 0);
+                }
+                mDrive.drive(0, 0, 0);
+                if(!armedSwitch.get())
+                {
+                    while(!armedSwitch.get())
+                    {
+                        armCatapult();
+                    }
+                }
+                fireCatapult();
+            }
+            catch(CANTimeoutException ex)
+            {
+                ex.printStackTrace();
+                initCANJaguars();
+            }
+        }
+        
+        aTimer.stop();
+       
     }
 
     /**
@@ -192,18 +189,11 @@ public class RobotTemplate extends SimpleRobot {
                 initCANJaguars();
             }   
             
-            if(auxStick.getRawButton(1))
-            {
-                 angle1.set(auxStick.getY());
-            }
-            else
-            {
-                /*
-                 * Sets the output to the angle motor of the rot rods to the value of the y axis of the auxStick scaled by a factor of 0.7.
-                 */
-                angle1.set(auxStick.getY() * 0.7);
-            }
-            
+            /*
+             * Sets the output to the angle motor of the rot rods to the value of the y axis of the auxStick scaled by a factor of 0.7.
+             */
+            angle1.set(auxStick.getY());
+
             /*
              * Controls the rotation of the rot rods.
              */
@@ -228,7 +218,11 @@ public class RobotTemplate extends SimpleRobot {
              */
             if(auxStick.getRawButton(2))
             {
-                winchMotor.set(winchPower);
+                winchMotor.set(-1);
+            }
+            else if(auxStick.getRawButton(1))
+            {
+                winchMotor.set(0.5);
             }
             else if(auxStick.getRawButton(4))
             {
