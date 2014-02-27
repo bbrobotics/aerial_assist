@@ -266,10 +266,11 @@ public class RobotTemplate extends SimpleRobot {
             }
         
             lcd.println(1, 1, "winch " + winchPower + "       ");
+            lcd.println(2, 1, "cam rot " + rotValue);
             lcd.println(3, 1, "input2" + armedSwitch.get() + "          ");
+            lcd.updateLCD();
             
             Timer.delay(0.01);
-            lcd.updateLCD();
         }
     }
     
