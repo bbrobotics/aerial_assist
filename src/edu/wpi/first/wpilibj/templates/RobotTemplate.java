@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -49,7 +50,7 @@ public class RobotTemplate extends SimpleRobot {
     CANJaguar aF, aB, bF, bB;
     DriverStation driverStation;
     DigitalInput armedSwitch;
-    Victor rotRod1, rotRod2, angle1;
+    Victor rotRod1, rotRod2, angle1, rot2rod2, rot2rot2, angle2;
     Talon winchMotor;
     Servo tiltServo, rotServo;
     Joystick xyStick, steerStick, auxStick;
@@ -69,6 +70,11 @@ public class RobotTemplate extends SimpleRobot {
         rotRod1 = new Victor(8);
         rotRod2 = new Victor(9);
         angle1 = new Victor(3);
+        
+//        rot2Rod1 = new Victor()
+//        rot2Rod2 = new Victor()
+//        angle2 = new Victor()
+//        
         
         winchMotor = new Talon(4);
         
@@ -97,7 +103,7 @@ public class RobotTemplate extends SimpleRobot {
         if(isLowGoal)
         {
            Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
-            boolean isHotGoalStarting = getHotGoal();
+            boolean isHotGoalStarting = false;//getHotGoal();
             try
             {
                 if(!isHotGoalStarting)
@@ -120,7 +126,14 @@ public class RobotTemplate extends SimpleRobot {
         }
         else
         {
-            try
+            aTimer.reset();
+            while(aTimer.get() < 0.2)
+            {
+                angle1.set(0.3);
+            }
+            angle1.set(0);
+            
+            /*try
             {
                 while(Math.abs(bF.getPosition()) < 8.12 && aTimer.get() < 10)
                 {
@@ -140,7 +153,7 @@ public class RobotTemplate extends SimpleRobot {
             {
                 ex.printStackTrace();
                 initCANJaguars();
-            }
+            }*/
         }
         
         aTimer.stop();
