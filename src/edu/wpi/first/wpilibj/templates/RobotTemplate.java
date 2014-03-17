@@ -233,10 +233,6 @@ public class RobotTemplate extends SimpleRobot {
             {
                 winchMotor.set(-1);
             }
-            else if(auxStick.getRawButton(1))
-            {
-                winchMotor.set(0.5);
-            }
             else if(auxStick.getRawButton(4))
             {
                 armCatapult();
@@ -329,22 +325,21 @@ public class RobotTemplate extends SimpleRobot {
     private void fireCatapult()
     {
         Timer timer = new Timer();
-        if(armedSwitch.get())
+        timer.start();
+        if(!armedSwitch.get())
         {
-            timer.start();
-            while(armedSwitch.get() && timer.get() < 1)
+            while(!armedSwitch.get() && timer.get() < 0.5)
             {
-                winchMotor.set(-0.6);
+                winchMotor.set(-0.3);
             }
-            winchMotor.set(0);
-            timer.reset();
-            while(timer.get() <= 0.03125)
-            {
-                winchMotor.set(0.5);
-            }
-            winchMotor.set(0);
-            timer.stop();
-        }    
+        }
+        timer.reset();
+        while(armedSwitch.get() && timer.get() < 1)
+        {
+            winchMotor.set(-0.3);
+        }
+        winchMotor.set(0);
+        timer.stop();
     }
    
     
