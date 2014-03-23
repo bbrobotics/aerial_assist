@@ -324,7 +324,10 @@ public class RobotTemplate extends SimpleRobot {
      */
     private void fireCatapult()
     {
-        Timer timer = new Timer();
+        new Thread(new Runnable(){
+                public void run()
+                {
+                   Timer timer = new Timer();
         timer.start();
         if(!armedSwitch.get())
         {
@@ -340,6 +343,25 @@ public class RobotTemplate extends SimpleRobot {
         }
         winchMotor.set(0);
         timer.stop();
+                }}).start();
+        
+        
+//        Timer timer = new Timer();
+//        timer.start();
+//        if(!armedSwitch.get())
+//        {
+//            while(!armedSwitch.get() && timer.get() < 0.5)
+//            {
+//                winchMotor.set(-0.3);
+//            }
+//        }
+//        timer.reset();
+//        while(armedSwitch.get() && timer.get() < 1)
+//        {
+//            winchMotor.set(-0.3);
+//        }
+//        winchMotor.set(0);
+//        timer.stop();
     }
    
     
