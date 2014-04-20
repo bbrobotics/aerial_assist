@@ -102,8 +102,8 @@ public class RobotTemplate extends SimpleRobot {
         
         if(isLowGoal)
         {
-           Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
-            boolean isHotGoalStarting = false;//getHotGoal();
+           //Timer.delay(0.7);//Delays a amount of time in order for the hot goal vision targets to rotate into position.
+            boolean isHotGoalStarting = true;//getHotGoal();
             try
             {
                 if(!isHotGoalStarting)
@@ -333,13 +333,13 @@ public class RobotTemplate extends SimpleRobot {
         {
             while(!armedSwitch.get() && timer.get() < 0.5)
             {
-                winchMotor.set(-0.3);
+                winchMotor.set(-0.4);
             }
         }
         timer.reset();
         while(armedSwitch.get() && timer.get() < 1)
         {
-            winchMotor.set(-0.3);
+            winchMotor.set(-0.4);
         }
         winchMotor.set(0);
         timer.stop();
