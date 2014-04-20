@@ -228,8 +228,10 @@ public class RobotTemplate extends SimpleRobot {
             
             /*
              * Manual control of the catapult winch.
+             * Extra clause added so that manual control is only enabled when the robot is tethered to the driverstation
+             * and the driverstation's alliance is set to red.
              */
-            if(auxStick.getRawButton(2))
+            if(auxStick.getRawButton(2) && !(driverStation.isFMSAttached() || driverStation.getAlliance() == DriverStation.Alliance.kBlue))
             {
                 winchMotor.set(-1);
             }
@@ -344,24 +346,6 @@ public class RobotTemplate extends SimpleRobot {
         winchMotor.set(0);
         timer.stop();
                 }}).start();
-        
-        
-//        Timer timer = new Timer();
-//        timer.start();
-//        if(!armedSwitch.get())
-//        {
-//            while(!armedSwitch.get() && timer.get() < 0.5)
-//            {
-//                winchMotor.set(-0.3);
-//            }
-//        }
-//        timer.reset();
-//        while(armedSwitch.get() && timer.get() < 1)
-//        {
-//            winchMotor.set(-0.3);
-//        }
-//        winchMotor.set(0);
-//        timer.stop();
     }
    
     
