@@ -41,7 +41,7 @@ import team1517.aerialassist.io.DriverLCD;
  */
 public class RobotTemplate extends SimpleRobot {
     
-    boolean catapultArmed = false;
+    boolean catapultArmed = false, isFiring = false;
     final int AREA_MINIMUM = 100;
     double tiltValue = 0.5, rotValue = 0.85, winchPower = -1;
     
@@ -239,7 +239,7 @@ public class RobotTemplate extends SimpleRobot {
             {
                 armCatapult();
             }
-            else if(auxStick.getRawButton(6))
+            else if(auxStick.getRawButton(6) && !isFiring)
             {
                 fireCatapult();
             }
@@ -329,22 +329,24 @@ public class RobotTemplate extends SimpleRobot {
         new Thread(new Runnable(){
                 public void run()
                 {
-                   Timer timer = new Timer();
-        timer.start();
-        if(!armedSwitch.get())
-        {
-            while(!armedSwitch.get() && timer.get() < 0.5)
-            {
-                winchMotor.set(-0.4);
-            }
-        }
-        timer.reset();
-        while(armedSwitch.get() && timer.get() < 1)
-        {
-            winchMotor.set(-0.4);
-        }
-        winchMotor.set(0);
-        timer.stop();
+                    isFiring = true;
+                    Timer timer = new Timer();
+                    timer.start();
+                    if(!armedSwitch.get())
+                    {
+                        while(!armedSwitch.get() && timer.get() < 0.5)
+                        {
+                            winchMotor.set(-0.4);
+                        }
+                    }
+                    timer.reset();
+                    while(armedSwitch.get() && timer.get() < 1)
+                    {
+                        winchMotor.set(-0.4);
+                    }
+                    winchMotor.set(0);
+                    timer.stop();
+                    isFiring = false;
                 }}).start();
     }
    
