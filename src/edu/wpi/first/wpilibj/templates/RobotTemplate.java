@@ -43,7 +43,8 @@ public class RobotTemplate extends SimpleRobot {
     
     boolean catapultArmed = false, isFiring = false;
     final int AREA_MINIMUM = 100;
-    double tiltValue = 0.5, rotValue = 0.85, winchPower = -1;
+    final double VERSION_CODE = 1.2;
+    double tiltValue = 0.5, rotValue = 0.85;
     
     AxisCamera camera;
     CriteriaCollection cc;
@@ -167,6 +168,8 @@ public class RobotTemplate extends SimpleRobot {
         boolean exceptionFree = true;
         double x = 0, y = 0, t = 0;
         
+        lcd.println(1, 1, "version " + VERSION_CODE);
+        
         while(isOperatorControl() && isEnabled())
         {
             if(xyStick.getRawButton(1))
@@ -247,22 +250,12 @@ public class RobotTemplate extends SimpleRobot {
             {
                 winchMotor.set(0);
             }
-
-            if(auxStick.getRawAxis(6) > 0 && winchPower <= 0.95)
-            {
-                winchPower = winchPower + 0.05;
-            }
-            else if(auxStick.getRawAxis(6) < 0 && winchPower >= -0.95)
-            {
-                winchPower = winchPower - 0.05;
-            }
             
             /*
              * Sets the output values of the camera axis servos.
              */
             tiltServo.set(tiltValue);
             rotServo.set(rotValue);
-            
             
             /*
              * Allows the user to adjust the value set to the rotServo.
@@ -276,7 +269,6 @@ public class RobotTemplate extends SimpleRobot {
                 rotValue = rotValue - 0.05;
             }
         
-            lcd.println(1, 1, "winch " + winchPower + "       ");
             lcd.println(2, 1, "cam rot " + rotValue);
             lcd.println(3, 1, "input2" + armedSwitch.get() + "          ");
             lcd.updateLCD();
@@ -346,6 +338,7 @@ public class RobotTemplate extends SimpleRobot {
                     }
                     winchMotor.set(0);
                     timer.stop();
+                    timer.delay(2); //added to prevent user from damaging the robot by holding down the fire button.
                     isFiring = false;
                 }}).start();
     }
